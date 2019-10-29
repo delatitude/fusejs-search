@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>Local Search</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="">
+        <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/3.4.5/fuse.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/htmlson.js"></script>
+        <script>
+            var riyadhseasons;
+
+            $( document ).ready(function() {
+                console.log( "ready!" );
+                
+                $.getJSON("http://na.appsaxis.com/riyadh-season.json", function(data) {
+                    riyadhseasons = data;
+                    console.log(riyadhseasons);
+                });
+                
+                $("#searchbtn").click(function() {
+                    $('#searchresultscount').html('');
+                    $('#searchresults').html('');
+
+                    var fuseOptions = {
+                            includeScore: true,
+                            shouldSort: true,
+                            threshold: 0.2,
+                            //location: 0,
+                            //distance: 100,
+                            //maxPatternLength: 32,
+                            //minMatchCharLength: 1,
+                            keys: [
+                                "ArabicName",
+                                "DescriptionArabic",
+                                "ZoneArabic"
+                            ]
+                    }; 
+                    var fuse = new Fuse(riyadhseasons, fuseOptions);
+                    var searchQuery = $('#searchtxt').val();
+                    var result = fuse.search(searchQuery);
+                    console.log({"matches":result}, result.length);
+                    
+                    
+                    if(result.length > 0) {
+                        $('#searchresultscount').html('<br><b>Results Count ' + result.length + '</b>');
+                        $('#searchresults').htmlson({
+                            data: result,
+                            headers: {
+                                0: 'Results',
+				                1: 'Score'
+                            },
+                            debug: false
+                        }); 
+                    } else {
+                        $('#searchresults').append("<p>No matches found</p>");
+                    }
+                });                
+            });
+        </script>
+    </head>
+    <body>
+        <!--[if lt IE 7]>
+            <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="#">upgrade your browser</a> to improve your experience.</p>
+        <![endif]-->
+        Search Term
+        <input type="text" name="searchtxt" id="searchtxt" />
+        <input type="button" value="Search" id="searchbtn" /> </br>
+        <div id="searchresultscount"></div></br>
+        <div id="searchresults"></div>
+    </body>
+</html>
