@@ -1,0 +1,1 @@
+# FuseJS local client side fuzzy search engine.
